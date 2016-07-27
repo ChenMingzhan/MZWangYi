@@ -35,7 +35,7 @@
         
         MZLoopView *loopView = [[MZLoopView alloc] initWithURls:imgs andtitle:titles didSelected:^(NSInteger index) {
             
-             NSLog(@"index = %@",headLine[index]);
+        
         }];;
         
         

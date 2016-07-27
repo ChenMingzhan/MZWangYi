@@ -9,6 +9,7 @@
 #import "MZLoopView.h"
 #import "MZLoopViewFlowLayout.h"
 #import "MZLoopViewCell.h"
+#import "MZWeakTimerObject.h"
 
 @interface MZLoopView ()<UICollectionViewDataSource,UICollectionViewDelegate>
 /**
@@ -60,11 +61,12 @@
         self.titleLable.text = self.titles[0];
        // 滚动到数组个数指定的位置
         dispatch_async(dispatch_get_main_queue(), ^{
-            
+         if(self.URLs.count > 1) {
         //如果需要滚到到某个位置，那么就需要先创建好这个位置的cell:创建cell
         [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:self.URLs.count inSection:0] atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
             
             [self addtimer];
+         }
         });
   
     }
@@ -176,8 +178,8 @@
     if (self.timer) return;
     if (!self.enableTimer) return;
     
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:self.timerInterval target:self selector:@selector(update) userInfo:nil repeats:YES];
-    
+    self.timer = [MZWeakTimerObject scheduledTimerWithTimeInterval:self.timerInterval target:self selector:@selector(update) userInfo:nil repeats:YES];
+//    self.timer = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(update) userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
     
 }
@@ -185,8 +187,9 @@
 -(void)update
 {  // 计算当前页号
     NSInteger page = (CGFloat)self.collectionView.contentOffset.x/ self.collectionView.frame.size.width;
-    
+//    NSLog(@"page=%ld",(long)page);
     CGFloat offsetX = (page +1)*self.collectionView.frame.size.width;
+    
     //如果需要真行偏移，那么就需要先创建到偏移位置的cell:创建cell
     [self.collectionView setContentOffset:CGPointMake(offsetX, 0) animated:YES];
 }
@@ -201,7 +204,7 @@
 
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return self.URLs.count * 3;
+   return self.URLs.count == 1 ? self.URLs.count:self.URLs.count * 3;
 }
 
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -237,10 +240,12 @@
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     // 计算页号
     NSInteger page =  (CGFloat)scrollView.contentOffset.x / scrollView.frame.size.width + 0.5;
+   
     
     // 根据页号获得标题
     self.titleLable.text = self.titles[page % self.titles.count];
     self.pageControl.currentPage = page % self.URLs.count;
+//    NSLog(@"collec: %@", self.collectionView);
 }
 
 /**
@@ -263,10 +268,12 @@
 //    }
     // 开启定时器
     [self addtimer];
+
 }
 /**
  *  自动滚动结束时调用(手动拖拽不会触发该代理方法)
  */
+
 -(void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
     [self scrollViewDidEndDecelerating:scrollView];

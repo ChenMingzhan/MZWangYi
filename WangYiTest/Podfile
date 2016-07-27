@@ -5,10 +5,8 @@
 
 target 'WangYiTest' do
 
-
- pod 'AFNetworking’
-
- pod 'SDWebImage'
+pod 'AFNetworking'
+pod 'SDWebImage'
 
 end
 
